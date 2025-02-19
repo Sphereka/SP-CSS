@@ -15,14 +15,14 @@
 /* ////////////////////////////////  */
 /* Typography  */
 /* General Typography */
-body {
+/* body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   font-size: 1rem; /* 16px */
-  line-height: 1.5;
+  /*line-height: 1.5;
   color: #333;
   background-color: #ebd3f8;
-}
+}*/
 h1,
 h2,
 h3,
@@ -108,11 +108,12 @@ h6 {
 .sp-dropdown-menu {
   display: none;
   position: absolute;
+  min-width: 12rem;
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  margin-top: 5px;
   z-index: 1;
+  list-style: none;
 }
 
 .sp-dropdown:hover .sp-dropdown-menu {
@@ -124,6 +125,7 @@ h6 {
   text-decoration: none;
   color: #212529;
   display: block;
+  border-radius: 5px;
 }
 
 .sp-dropdown-item:hover {
@@ -145,7 +147,6 @@ h6 {
 /* ////////////////////////////////  */
 .sp-carousel {
   width: 100%;
-  height: 500px;
   border-radius: 3px;
   overflow: hidden;
   position: relative;
@@ -192,10 +193,8 @@ h6 {
 }
 
 .sp-carousel .sp-slides {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
+  left: 0%;
+  position: relative;
   display: flex;
   width: 100%;
   transition: 1s ease-in-out all;
@@ -333,6 +332,10 @@ h6 {
   display: none; /* Hidden by default, will be shown on smaller screens */
 }
 
+.sp-navbar-toggle:hover {
+  background-color: transparent;
+}
+
 /* Navbar Menu */
 .sp-navbar-menu {
   display: flex;
@@ -346,6 +349,7 @@ h6 {
 }
 
 .sp-navbar-links a {
+  display: block;
   color: white;
   text-decoration: none;
   padding: 0.5rem;
@@ -372,7 +376,7 @@ h6 {
     top: 100%;
     left: 0;
     /* padding: 1rem; */
-    z-index: 1;
+    z-index: 2;
     opacity: 0.975;
   }
 
@@ -3127,23 +3131,22 @@ h6 {
 
 /* Border colors */
 .sp-border-primary {
-  border-color: var(--color-primary); /* Bootstrap primary color */
+  border-color: var(--color-primary);
 }
 
 .sp-border-secondary {
-  border-color: var(--color-secondary); /* Bootstrap secondary color */
+  border-color: var(--color-secondary);
 }
 
 .sp-border-success {
-  border-color: #28a745; /* Bootstrap success color */
+  border-color: #28a745;
 }
 
 .sp-border-danger {
-  border-color: #dc3545; /* Bootstrap danger color */
+  border-color: #dc3545;
 }
-
 .sp-border-warning {
-  border-color: #ffc107; /* Bootstrap warning color */
+  border-color: #ffc107;
 }
 
 /* Border styles for solid, dashed, and dotted */
@@ -5152,13 +5155,17 @@ h6 {
 .sp-card {
   position: relative;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 0.25rem;
+  background-color: #fff;
   overflow: hidden;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.2s;
+  word-wrap: break-word;
 }
 
 .sp-card-body {
+  flex: 1 1 auto;
   padding: 1.25rem;
 }
 /* ////////////////////////////////  */
@@ -5169,35 +5176,45 @@ h6 {
   font-size: 1rem;
   border-radius: 0.25rem;
   text-align: center;
+  border: 1px solid transparent;
 }
 
 .sp-btn-primary {
   color: #fff;
   background-color: var(--color-primary);
-  border-color: var(--color-primary);
 }
 .sp-btn-secondary {
   color: #fff;
   background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
 }
 .sp-btn-success {
   color: #fff;
   background-color: #28a745;
-  border-color: #28a745;
 }
 .sp-btn-danger {
   color: #fff;
   background-color: #dc3545;
-  border-color: #dc3545;
 }
 .sp-btn-warning {
   color: #fff;
   background-color: #ffc107;
-  border-color: #ffc107;
 }
 
-
+.sp-btn-primary:hover {
+  background-color: #140f2a;
+}
+.sp-btn-secondary:hover {
+  background-color: #783eba;
+}
+.sp-btn-success:hover {
+  background-color: #1e7c34;
+}
+.sp-btn-danger:hover {
+  background-color: #a12733;
+}
+.sp-btn-warning:hover {
+  background-color: #c99700;
+}
 
 /* Forms  */
 .sp-form-control {
@@ -5292,25 +5309,30 @@ h6 {
 }
 
 .sp-row {
+  display: flex;
   flex-wrap: wrap;
   margin-right: -15px;
   margin-left: -15px;
 }
 
 /* Columns */
-[class*="sp-col-"] {
-  padding-right: 15px;
-  padding-left: 15px;
-  flex-grow: 1;
-  flex-basis: 0;
+[class*="sp-col"] {
   max-width: 100%;
+  width: 100%;
+  min-height: 1px;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .sp-col {
-  flex: 1;
-  min-width: 0;
-  padding-right: 15px;
-  padding-left: 15px;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 0;
+  -ms-flex-positive: 1;
+  -ms-flex-preferred-size: 0;
+  -webkit-box-flex: 1;
 }
 
 /* Base column sizes */
@@ -6191,7 +6213,7 @@ h6 {
 /* Extra Small Devices (default behavior, < 576px) */
 
 /* Small devices (≥ 576px) */
-@media (max-width: 576px) {
+@media (min-width: 576px) {
   .sp-container {
     max-width: 540px; /* Small devices */
   }
@@ -6246,7 +6268,7 @@ h6 {
 }
 
 /* Medium devices (≥ 768px) */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .sp-container {
     max-width: 720px; /* Medium devices */
   }
@@ -6301,7 +6323,7 @@ h6 {
 }
 
 /* Large devices (≥ 992px) */
-@media (max-width: 992px) {
+@media (min-width: 992px) {
   .sp-container {
     max-width: 960px; /* Large devices */
   }
@@ -6356,7 +6378,7 @@ h6 {
 }
 
 /* Extra large devices (≥ 1200px) */
-@media (max-width: 1200px) {
+@media (min-width: 1200px) {
   .sp-container {
     max-width: 1140px; /* Extra large devices */
   }
@@ -6410,18 +6432,18 @@ h6 {
   }
 }
 
-@media (max-width: 1400px) {
+@media (min-width: 1400px) {
   .sp-container {
     max-width: 1320px; /* Extra extra large devices */
   }
 }
 
-@media (max-width: 576px) {
+@media (min-width: 576px) {
   /* sm  */
 }
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   /* md  */
 }
-@media (max-width: 992px) {
+@media (min-width: 992px) {
   /* lg  */
 }
