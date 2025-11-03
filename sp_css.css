@@ -1,3 +1,14 @@
+/*!
+  * SP-CSS v1.0.0
+  * A lightweight, responsive CSS framework for modern web interfaces.
+  * Built by Sphereka to simplify UI design with clean, flexible, and reusable components.
+  * https://sphereka.com
+  *
+  * © 2025 Sphereka. All rights reserved.
+  * Licensed under MIT License.
+*/
+
+
 /* Color Definitions */
 :root {
   --color-primary: #1f1740;
