@@ -25,57 +25,89 @@ document.addEventListener("DOMContentLoaded", function () {
   const carousels = document.querySelectorAll(".sp-carousel");
 
   carousels.forEach((carousel) => {
-    const slides = carousel.querySelector(".sp-slides");
-    const slidesCount = slides.childElementCount;
-    const maxLeft = (slidesCount - 1) * -100; // Calculate maxLeft for each carousel
-    let current = 0;
+    const slidesContainer = carousel.querySelector(".sp-slides");
+    const slidesCount = slidesContainer.childElementCount;
+    if (!slidesCount) return;
 
-    // Get the delay from the class name, default to 3000ms if not found
-    const delayClass = Array.from(carousel.classList).find((className) =>
-      className.startsWith("sp-carousel-delay-")
-    );
-    const delay = delayClass
-      ? parseInt(delayClass.split("-").pop())
-      : 9000000;
+    // Detect RTL for this carousel:
+    // Priority: explicit dir attribute on the carousel element,
+    // fallback to computed style or document dir.
+    const explicitDir = carousel.getAttribute("dir");
+    const computedDir = getComputedStyle(carousel).direction;
+    const docDir = document.documentElement.dir || "ltr";
+    const isRTL = (explicitDir || computedDir || docDir).toLowerCase() === "rtl";
+
+    // Controls
+    const nextBtn = carousel.querySelector(".sp-next-slide");
+    const prevBtn = carousel.querySelector(".sp-prev-slide");
+    // Swap glyphs to make arrows match visual expectation when RTL
+    if (isRTL) {
+      if (nextBtn) nextBtn.textContent = "◁"; // visually point left for "next" in RTL
+      if (prevBtn) prevBtn.textContent = "▷";
+    } else {
+      if (nextBtn) nextBtn.textContent = "▷";
+      if (prevBtn) prevBtn.textContent = "◁";
+    }
+
+    // index-based carousel (0..slidesCount-1)
+    let index = 0;
+
+    // sign determines how translateX is computed: LTR -> -index * 100%, RTL -> +index * 100%
+    const sign = isRTL ? 1 : -1;
+
+    // ensure transition style applied (safe fallback)
+    slidesContainer.style.transition = "transform 1s ease-in-out";
+
+    function applyTransform() {
+      slidesContainer.style.transform = `translateX(${sign * index * 100}%)`;
+    }
 
     function changeSlide(next = true) {
       const controls = carousel.querySelector(".sp-controls");
-      controls.classList.add("sp-disable");
+      if (controls) controls.classList.add("sp-disable");
 
       if (next) {
-        current = current > maxLeft ? current - 100 : 0; // Loop back to start
+        index = (index + 1) % slidesCount;
       } else {
-        current = current < 0 ? current + 100 : maxLeft; // Loop to end
+        index = (index - 1 + slidesCount) % slidesCount;
       }
 
-      slides.style.left = current + "%";
+      applyTransform();
 
       setTimeout(() => {
-        controls.classList.remove("sp-disable");
-      }, 1000); // Transition duration is 1s
+        if (controls) controls.classList.remove("sp-disable");
+      }, 1000); // matches transition duration
     }
 
-    let autoChange = setInterval(changeSlide, delay);
+    // get delay from class name, fallback to 3000ms
+    const delayClass = Array.from(carousel.classList).find((c) =>
+      c.startsWith("sp-carousel-delay-")
+    );
+    const delay = delayClass ? parseInt(delayClass.split("-").pop(), 10) : 3000;
+
+    let autoChange = setInterval(() => changeSlide(true), delay);
     const restart = function () {
       clearInterval(autoChange);
-      autoChange = setInterval(changeSlide, delay);
+      autoChange = setInterval(() => changeSlide(true), delay);
     };
 
-    // Controls
-    carousel
-      .querySelector(".sp-next-slide")
-      .addEventListener("click", function () {
-        changeSlide();
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        changeSlide(true);
         restart();
       });
-
-    carousel
-      .querySelector(".sp-prev-slide")
-      .addEventListener("click", function () {
+    }
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
         changeSlide(false);
         restart();
       });
+    }
+
+    // initial layout
+    applyTransform();
   });
+
 
   // nav bar 
   // Navbar toggle script for small screens

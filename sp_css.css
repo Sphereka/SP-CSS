@@ -203,18 +203,20 @@ h6 {
   transform: scale(1);
 }
 
+
 .sp-carousel .sp-slides {
-  left: 0%;
-  position: relative;
   display: flex;
   width: 100%;
-  transition: 1s ease-in-out all;
+  transition: transform 1s ease-in-out;
+  transform: translateX(0%);
+  will-change: transform;
 }
 
 .sp-carousel .sp-slides .sp-slide {
-  min-width: 100%;
+  flex: 0 0 100%;
   min-height: 100%;
   height: auto;
+  box-sizing: border-box;
 }
 
 .sp-disable {
@@ -367,7 +369,7 @@ h6 {
 
 .sp-navbar-links a:hover {
   background-color: var(--color-secondary);
-  border-radius: 8px;
+  border-radius: 2px;
 }
 
 /* Responsive Styles */
