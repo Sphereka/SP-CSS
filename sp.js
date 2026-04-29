@@ -114,7 +114,217 @@ document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.querySelector(".sp-navbar-toggle");
   const navbarMenu = document.querySelector(".sp-navbar-menu");
 
-  toggleButton.addEventListener("click", () => {
-    navbarMenu.classList.toggle("active");
-  });
+  if (toggleButton){
+    toggleButton.addEventListener("click", () => {
+      navbarMenu.classList.toggle("active");
+    });
+  }
+
+  // toast
+  class ToastManager {
+    constructor() {
+      this.toastContainer = null;
+      this.initContainer();
+    }
+
+    initContainer() {
+      let container = document.querySelector('.sp-toast-container');
+
+      if (!container) {
+          container = document.createElement('div');
+          container.className = 'sp-toast-container';
+          document.body.appendChild(container);
+      }
+
+      this.toastContainer = container;
+    }
+
+    startRingLoop(toast) {
+      const firstDelay = 1400;  // after entrance finishes
+      const interval = 1500;
+
+      const trigger = () => {
+        if (!toast || !toast.isConnected) return;
+
+        toast.classList.remove('replay-ring-active');
+        toast.classList.add('replay-ring');
+
+        void toast.offsetWidth;
+
+        toast.classList.remove('replay-ring');
+        toast.classList.add('replay-ring-active');
+      };
+
+      toast._ringInterval = setTimeout(function loop() {
+        trigger();
+        toast._ringInterval = setTimeout(loop, interval);
+      }, firstDelay);
+    }
+
+    showToast(message, type = 'success') {
+      const typeMap = {
+        danger: 'error',
+        error: 'error',
+        warning: 'warning',
+        success: 'success',
+        info: 'info'
+      };
+
+      const icon = typeMap[type] || 'success';
+      const toast = this.createToastElement(message, icon);
+
+      this.toastContainer.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        this.prepareIconAnimation(toast);
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+            this.startRingLoop(toast);
+        });
+      });
+
+      const progressFill = toast.querySelector('.sp-toast-timer-fill');
+      const duration = 5000;
+      let remaining = duration;
+      let startTime = performance.now();
+      let timerId = null;
+
+      const removeLater = () => {
+        timerId = setTimeout(() => {
+          this.removeToast(toast);
+        }, remaining);
+      };
+
+      removeLater();
+
+      toast.addEventListener('mouseenter', () => {
+        if (timerId) clearTimeout(timerId);
+        if (progressFill) progressFill.style.animationPlayState = 'paused';
+        remaining = Math.max(0, remaining - (performance.now() - startTime));
+      });
+
+      toast.addEventListener('mouseleave', () => {
+        if (progressFill) progressFill.style.animationPlayState = 'running';
+        startTime = performance.now();
+        removeLater();
+      });
+
+      toast.addEventListener('click', () => {
+        if (timerId) clearTimeout(timerId);
+        this.removeToast(toast);
+      });
+    }
+
+    createToastElement(message, icon) {
+      const toast = document.createElement('div');
+      toast.className = 'sp-toast';
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+
+      const iconSVG = this.getIconSVG(icon);
+
+      toast.innerHTML = `
+          <div class="sp-toast-content">
+              <div class="sp-toast-icon ${icon}">${iconSVG}</div>
+              <div class="sp-toast-message">${this.escapeHtml(message)}</div>
+              <div class="sp-toast-timer-progress">
+                  <span class="sp-toast-timer-fill"></span>
+              </div>
+          </div>
+      `;
+
+      return toast;
+    }
+
+    prepareIconAnimation(toast) {
+      const iconWrap = toast.querySelector('.sp-toast-icon');
+      if (!iconWrap) return;
+
+      const shapes = iconWrap.querySelectorAll('path, line, circle');
+
+      shapes.forEach((el, index) => {
+        try {
+            if (typeof el.getTotalLength === 'function') {
+                const length = el.getTotalLength();
+                el.style.strokeDasharray = `${length}`;
+                el.style.strokeDashoffset = `${length}`;
+                el.style.animationDelay = `${0.08 + index * 0.08}s`;
+            }
+        } catch (e) {
+            // Skip elements that cannot be measured safely
+        }
+      });
+    }
+
+    getIconSVG(type) {
+      const icons = {
+        success: `
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+        `,
+        error: `
+            <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        `,
+        warning: `
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3L2 21h20L12 3z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        `,
+        info: `
+            <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="11"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+        `
+      };
+
+      return icons[type] || icons.success;
+    }
+
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = String(text);
+      return div.innerHTML;
+    }
+
+    removeToast(toast) {
+      if (!toast || !toast.parentNode) return;
+
+      if (toast._ringInterval) {
+        clearTimeout(toast._ringInterval);
+        toast._ringInterval = null;
+      }
+
+      toast.classList.remove('show');
+      toast.classList.add('leaving');
+
+      setTimeout(() => {
+          if (toast && toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+          }
+      }, 260);
+    }
+  }
+
+  const toastManager = new ToastManager();
+
+  function showToast(message, type = 'success') {
+    toastManager.showToast(message, type);
+  }
+
+  window.SpToast = {
+    show: showToast,
+    manager: toastManager
+  };
+
+  window.showToast = showToast;
 });
